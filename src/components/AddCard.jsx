@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
-import { Separator } from "./ui/separator";
 import TextArea from "./TextArea";
 import { useAction } from "@/hooks/useAction";
 import { createCard } from "@/services";

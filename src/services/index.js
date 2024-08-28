@@ -157,9 +157,6 @@ export const deleteList = async (data) => {
 
 // add card
 export const createCard = async (data) => {
-  const { userId } = auth();
-  if (!userId) return { error: "unauthorized" };
-
   const { title, listId } = data;
 
   let card;
