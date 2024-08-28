@@ -222,3 +222,21 @@ export const updateCard = async (data) => {
   revalidatePath("/");
   return { data: updatedCards };
 };
+
+// delete card
+export const deleteCard = async (data) => {
+  const { id } = data;
+  let card;
+  try {
+    card = await prisma.card.delete({
+      where: { id },
+    });
+  } catch (error) {
+    return {
+      error: "failed to delete card",
+    };
+  }
+
+  revalidatePath("/");
+  return { data: card };
+};
