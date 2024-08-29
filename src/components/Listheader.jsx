@@ -51,7 +51,7 @@ const Listheader = ({ list }) => {
 
   useEventListener("keydown", onKeyDown);
   return (
-    <div className="px-2 text-sm font-semibold flex justify-between items-center">
+    <div className="px-2 text-sm font-semibold flex justify-between items-center pointer-events-none">
       {isEditable ? (
         <form action={handleSubmit} ref={formRef}>
           <input hidden id="id" name="id" value={list.id} />

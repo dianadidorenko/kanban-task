@@ -57,7 +57,7 @@ const CardItem = ({ card, index }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
-          className="flex flex-col justify-between gap-2 bg-white p-2 rounded shadow-md"
+          className="flex flex-col justify-between gap-2 bg-[rgba(157,157,157,0.24)] p-2 rounded-md shadow-md"
         >
           {isEditing ? (
             <div className="flex flex-col gap-4">
@@ -79,20 +79,28 @@ const CardItem = ({ card, index }) => {
             </div>
           ) : (
             <div className="flex flex-col justify-between gap-2">
-              <div className="text-gray-500 text-sm">
+              <div className="text-gray-800/80 text-sm font-semibold underline">
                 {formatDate(card.date)}
               </div>
-              <div className="truncate w-full text-wrap">{card.title}</div>
+              <div className="truncate w-full text-wrap font-light">
+                {card.title}
+              </div>
             </div>
           )}
 
           <div className="flex justify-end gap-2 ml-2">
             {!isEditing && (
-              <button onClick={handleEdit} className="text-blue-600">
+              <button
+                onClick={handleEdit}
+                className="text-blue-900 hover:bg-blue-900 hover:text-white duration-500 hover:rounded-full p-2"
+              >
                 <Edit2 className="w-5 h-5" />
               </button>
             )}
-            <button onClick={handleDelete} className="text-red-600">
+            <button
+              onClick={handleDelete}
+              className="text-rose-900 hover:bg-rose-900 hover:text-white duration-500 hover:rounded-full p-2"
+            >
               <Trash className="w-5 h-5" />
             </button>
           </div>

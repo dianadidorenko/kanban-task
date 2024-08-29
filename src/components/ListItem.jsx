@@ -12,7 +12,7 @@ const ListItem = ({ index, key, list }) => {
         <li
           {...provided.draggableProps}
           ref={provided.innerRef}
-          className="shrink-0 h-full w-full select-none shadow-md px-2 py-4 rounded-md"
+          className="shrink-0 h-full w-full select-none shadow-lg px-2 py-4 rounded-md"
         >
           <AddCard list={list} />
           <div {...provided.dragHandleProps} className="w-full py-2">

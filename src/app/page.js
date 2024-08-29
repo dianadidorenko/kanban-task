@@ -15,10 +15,7 @@ export default async function Home() {
     },
   });
   return (
-    <div
-      className="px-20 py-28 h-screen overflow-x-auto bg-no-repeat bg-cover"
-      style={{ backgroundColor: "#eee" }}
-    >
+    <div className="px-6 lg:px-20 py-10 lg:py-20 h-screen overflow-x-auto bg-[#c0c0c06c]">
       <ListContainer lists={lists} />
     </div>
   );

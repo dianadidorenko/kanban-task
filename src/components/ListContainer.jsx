@@ -114,7 +114,7 @@ const ListContainer = ({ lists }) => {
           <ol
             {...provided.droppableProps}
             ref={provided.innerRef}
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-3 h-full"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 h-full"
           >
             {listData.map((list, index) => (
               <ListItem key={list.id} index={index} list={list} />
