@@ -1,13 +1,25 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { useAction } from "@/hooks/useAction";
-import { deleteCard } from "@/services";
+import { deleteCard, updateCardDetails } from "@/services";
 import { toast } from "sonner";
-import { Trash } from "lucide-react";
+import { Edit2, Trash } from "lucide-react";
+
+const formatDate = (date) => {
+  if (!date) return "";
+  const options = { year: "numeric", month: "short", day: "2-digit" };
+  return new Intl.DateTimeFormat("ru-RU", options).format(new Date(date));
+};
 
 const CardItem = ({ card, index }) => {
-  const { result } = useAction(deleteCard, {
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(card.title);
+  const [date, setDate] = useState(
+    card.date ? new Date(card.date).toISOString().split("T")[0] : ""
+  );
+
+  const { result: deleteResult } = useAction(deleteCard, {
     onSuccess: () => {
       toast.success(`Card deleted`);
     },
@@ -16,26 +28,75 @@ const CardItem = ({ card, index }) => {
     },
   });
 
+  const { result: updateResult } = useAction(updateCardDetails, {
+    onSuccess: () => {
+      toast.success(`Card updated`);
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
+
   const handleDelete = () => {
-    result({ id: card.id });
+    deleteResult({ id: card.id });
   };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleUpdate = () => {
+    updateResult({ id: card.id, title, date });
+  };
+
   return (
     <Draggable draggableId={card.id} index={index}>
       {(provided) => (
-        <>
-          <div
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            ref={provided.innerRef}
-            role="button"
-            className={`truncate py-2 px-3 text-sm rounded-md flex items-center justify-between shadow-md bg-[#4444440d] `}
-          >
-            {card.title}
+        <div
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          ref={provided.innerRef}
+          className="flex flex-col justify-between gap-2 bg-white p-2 rounded shadow-md"
+        >
+          {isEditing ? (
+            <div className="flex flex-col gap-4">
+              <textarea
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Title"
+                className="border p-1 rounded-md w-full h-full"
+              />
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="border p-1 rounded-md"
+              />
+              <button onClick={handleUpdate} className="text-green-600">
+                Сохранить
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col justify-between gap-2">
+              <div className="text-gray-500 text-sm">
+                {formatDate(card.date)}
+              </div>
+              <div className="truncate w-full text-wrap">{card.title}</div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 ml-2">
+            {!isEditing && (
+              <button onClick={handleEdit} className="text-blue-600">
+                <Edit2 className="w-5 h-5" />
+              </button>
+            )}
             <button onClick={handleDelete} className="text-red-600">
               <Trash className="w-5 h-5" />
             </button>
           </div>
-        </>
+        </div>
       )}
     </Draggable>
   );

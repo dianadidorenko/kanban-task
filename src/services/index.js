@@ -157,7 +157,7 @@ export const deleteList = async (data) => {
 
 // add card
 export const createCard = async (data) => {
-  const { title, listId } = data;
+  const { title, listId, date } = data;
 
   let card;
 
@@ -185,6 +185,7 @@ export const createCard = async (data) => {
       data: {
         title,
         listId,
+        date: date ? new Date(date) : null,
         order: newOrder,
       },
     });
@@ -221,6 +222,30 @@ export const updateCard = async (data) => {
   }
   revalidatePath("/");
   return { data: updatedCards };
+};
+
+// update card
+export const updateCardDetails = async (data) => {
+  const { id, title, desc, date } = data;
+  let card;
+
+  try {
+    card = await prisma.card.update({
+      where: { id },
+      data: {
+        title,
+        desc,
+        date: date ? new Date(date) : null,
+      },
+    });
+  } catch (error) {
+    return {
+      error: "failed to update card",
+    };
+  }
+
+  revalidatePath("/");
+  return { data: card };
 };
 
 // delete card

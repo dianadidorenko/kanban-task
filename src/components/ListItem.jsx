@@ -7,13 +7,12 @@ import { cn } from "@/lib/utils";
 
 const ListItem = ({ index, key, list }) => {
   return (
-    <Draggable draggableId={list.id} index={index}>
+    <Draggable draggableId={list.id} index={index} key={key}>
       {(provided) => (
         <li
           {...provided.draggableProps}
           ref={provided.innerRef}
           className="shrink-0 h-full w-full select-none shadow-md px-2 py-4 rounded-md"
-          key={key}
         >
           <AddCard list={list} />
           <div {...provided.dragHandleProps} className="w-full py-2">

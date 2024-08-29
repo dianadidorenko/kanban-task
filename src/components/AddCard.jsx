@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -14,23 +14,32 @@ import { createCard } from "@/services";
 import { toast } from "sonner";
 
 const AddCard = ({ list }) => {
+  const [date, setDate] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
   const { result, fieldError } = useAction(createCard, {
     onSuccess: (data) => {
       toast.success(`${data.title} created`);
+      setIsOpen(false);
     },
     onError: (error) => {
       toast.error(error);
     },
   });
+
   const submit = (formData) => {
     const title = formData.get("title");
 
-    result({ title, listId: list.id });
+    result({ title, date, listId: list.id });
   };
+
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button className="bg-rose-900 text-white w-full justify-end text-xs">
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="bg-rose-900 text-white w-full justify-end text-xs"
+        >
           <Plus className="h-[13px] w-[13px] mr-1" />
           Добавить
         </Button>
@@ -44,9 +53,24 @@ const AddCard = ({ list }) => {
             errors={fieldError}
             className="outline-none border border-slate-300 rounded-md shadow-md p-1 placeholder:text-sm w-full"
           />
+          <div className="mt-2">
+            <label
+              htmlFor="date"
+              className="block text-sm font-semibold text-slate-700"
+            >
+              Выберите дату
+            </label>
+            <input
+              type="date"
+              id="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="border p-1 rounded-md w-full"
+            />
+          </div>
           <Button
             type="submit"
-            className="rounded-md w-full h-auto px-5 py-2 text-xs duration-300"
+            className="rounded-md w-full h-auto px-5 py-2 text-xs duration-300 mt-2"
           >
             Добавить
           </Button>
