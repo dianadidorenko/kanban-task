@@ -49,7 +49,12 @@ const AddCard = ({ list }) => {
       </PopoverTrigger>
 
       <PopoverContent className="px-2 pt-3 bg-white">
-        <form action={submit}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit(new FormData(e.target));
+          }}
+        >
           <TextArea
             id="title"
             placeholder="Введите название карточки"
