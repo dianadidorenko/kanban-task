@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "./ui/button";
-import { Plus } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
 import TextArea from "./TextArea";
 import { useAction } from "@/hooks/useAction";
 import { createCard } from "@/services";
@@ -16,20 +16,23 @@ import { toast } from "sonner";
 const AddCard = ({ list }) => {
   const [date, setDate] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { result, fieldError } = useAction(createCard, {
     onSuccess: (data) => {
       toast.success(`${data.title} created`);
+      setIsLoading(false);
       setIsOpen(false);
     },
     onError: (error) => {
       toast.error(error);
+      setIsLoading(false);
     },
   });
 
   const submit = (formData) => {
     const title = formData.get("title");
-
+    setIsLoading(true);
     result({ title, date, listId: list.id });
   };
 
@@ -70,9 +73,16 @@ const AddCard = ({ list }) => {
           </div>
           <Button
             type="submit"
-            className="rounded-md w-full h-auto px-5 py-2 text-xs duration-300 mt-2"
+            className={`rounded-md w-full h-auto px-5 py-2 text-xs duration-300 mt-2 ${
+              isLoading ? "bg-gray-400 cursor-not-allowed" : ""
+            } flex items-center justify-center`}
+            disabled={isLoading}
           >
-            Добавить
+            {isLoading ? (
+              <Loader className="animate-spin w-5 h-5" />
+            ) : (
+              "Добавить"
+            )}
           </Button>
         </form>
       </PopoverContent>

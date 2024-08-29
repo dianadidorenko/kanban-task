@@ -15,8 +15,10 @@ const ListItem = ({ index, key, list }) => {
           className="shrink-0 h-full w-full select-none shadow-lg px-2 py-4 rounded-md"
         >
           <AddCard list={list} />
+
           <div {...provided.dragHandleProps} className="w-full py-2">
             <Listheader list={list} />
+
             <Droppable droppableId={list.id} type="card">
               {(provided) => (
                 <ol
