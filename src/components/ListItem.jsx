@@ -5,9 +5,9 @@ import AddCard from "./AddCard";
 import CardItem from "./CardItem";
 import { cn } from "@/lib/utils";
 
-const ListItem = ({ index, key, list, className }) => {
+const ListItem = ({ index, list }) => {
   return (
-    <Draggable draggableId={list.id} index={index} key={key}>
+    <Draggable draggableId={list.id} index={index}>
       {(provided) => (
         <li
           {...provided.draggableProps}

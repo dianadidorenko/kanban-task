@@ -1,16 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { useAction } from "@/hooks/useAction";
 import { deleteCard, updateCardDetails } from "@/services";
 import { toast } from "sonner";
 import { Edit2, Trash } from "lucide-react";
-
-const formatDate = (date) => {
-  if (!date) return "";
-  const options = { year: "numeric", month: "short", day: "2-digit" };
-  return new Intl.DateTimeFormat("ru-RU", options).format(new Date(date));
-};
 
 const CardItem = ({ card, index }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -18,6 +12,16 @@ const CardItem = ({ card, index }) => {
   const [date, setDate] = useState(
     card.date ? new Date(card.date).toISOString().split("T")[0] : ""
   );
+  const [formattedDate, setFormattedDate] = useState("");
+
+  useEffect(() => {
+    if (card.date) {
+      const options = { year: "numeric", month: "short", day: "2-digit" };
+      setFormattedDate(
+        new Intl.DateTimeFormat("ru-RU", options).format(new Date(card.date))
+      );
+    }
+  }, [card.date]);
 
   const { result: deleteResult } = useAction(deleteCard, {
     onSuccess: () => {
@@ -80,7 +84,7 @@ const CardItem = ({ card, index }) => {
           ) : (
             <div className="flex flex-col justify-between gap-2">
               <div className="text-gray-800/80 text-sm font-semibold underline">
-                {formatDate(card.date)}
+                {formattedDate}
               </div>
               <div className="truncate w-full text-wrap font-light text-base">
                 {card.title}
