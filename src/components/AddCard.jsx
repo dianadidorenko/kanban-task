@@ -41,7 +41,7 @@ const AddCard = ({ list }) => {
       <PopoverTrigger asChild>
         <Button
           onClick={() => setIsOpen(true)}
-          className="bg-rose-900 text-white w-full justify-end text-xs"
+          className="bg-rose-900 text-white w-full justify-end text-xs duration-300 h-10"
         >
           <Plus className="h-[13px] w-[13px] mr-1" />
           Добавить

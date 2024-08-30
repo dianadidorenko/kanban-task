@@ -5,17 +5,16 @@ import AddCard from "./AddCard";
 import CardItem from "./CardItem";
 import { cn } from "@/lib/utils";
 
-const ListItem = ({ index, key, list }) => {
+const ListItem = ({ index, key, list, className }) => {
   return (
     <Draggable draggableId={list.id} index={index} key={key}>
       {(provided) => (
         <li
           {...provided.draggableProps}
           ref={provided.innerRef}
-          className="shrink-0 h-full w-full select-none shadow-lg px-2 py-4 rounded-md"
+          className="shrink-0 h-full w-full select-none shadow-lg px-2 py-4 rounded-md bg-[#ffffffcb] border-2 border-[#d2d2d284]"
         >
           <AddCard list={list} />
-
           <div {...provided.dragHandleProps} className="w-full py-2">
             <Listheader list={list} />
 

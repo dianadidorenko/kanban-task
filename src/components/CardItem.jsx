@@ -57,7 +57,7 @@ const CardItem = ({ card, index }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
-          className="flex flex-col justify-between gap-2 bg-[rgba(157,157,157,0.24)] p-2 rounded-md shadow-md"
+          className="flex flex-col justify-between gap-2 bg-[rgb(244,237,237)] border-2 border-[#d2d2d225] p-2 rounded-br-xl rounded-bl-xl shadow-md"
         >
           {isEditing ? (
             <div className="flex flex-col gap-4">
@@ -82,7 +82,7 @@ const CardItem = ({ card, index }) => {
               <div className="text-gray-800/80 text-sm font-semibold underline">
                 {formatDate(card.date)}
               </div>
-              <div className="truncate w-full text-wrap font-light">
+              <div className="truncate w-full text-wrap font-light text-base">
                 {card.title}
               </div>
             </div>

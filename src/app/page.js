@@ -15,7 +15,7 @@ export default async function Home() {
     },
   });
   return (
-    <div className="px-6 lg:px-20 py-10 lg:py-20 h-screen overflow-x-auto bg-[#c0c0c06c]">
+    <div className="px-6 lg:px-10 pt-2 pb-10 lg:pt-6 h-screen overflow-x-auto bg-[#d2d2d26c]">
       <ListContainer lists={lists} />
     </div>
   );
