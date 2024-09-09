@@ -1,13 +1,15 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { useAction } from "@/hooks/useAction";
 import { deleteCard, updateCardDetails } from "@/services";
 import { toast } from "sonner";
-import { Edit2, Trash } from "lucide-react";
+import { Edit2, Loader, Trash } from "lucide-react";
 
 const CardItem = ({ card, index }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState(card.title);
   const [date, setDate] = useState(
     card.date ? new Date(card.date).toISOString().split("T")[0] : ""
@@ -26,9 +28,11 @@ const CardItem = ({ card, index }) => {
   const { result: deleteResult } = useAction(deleteCard, {
     onSuccess: () => {
       toast.success(`Card deleted`);
+      setIsLoading(false);
     },
     onError: (error) => {
       toast.error(error);
+      setIsLoading(false);
     },
   });
 
@@ -36,14 +40,17 @@ const CardItem = ({ card, index }) => {
     onSuccess: () => {
       toast.success(`Card updated`);
       setIsEditing(false);
+      setIsLoading(false);
     },
     onError: (error) => {
       toast.error(error);
+      setIsLoading(false);
     },
   });
 
   const handleDelete = () => {
     deleteResult({ id: card.id });
+    setIsLoading(true);
   };
 
   const handleEdit = () => {
@@ -96,6 +103,7 @@ const CardItem = ({ card, index }) => {
             {!isEditing && (
               <button
                 onClick={handleEdit}
+                disabled={isLoading}
                 className="text-blue-900 hover:bg-blue-900 hover:text-white duration-500 hover:rounded-full p-2"
               >
                 <Edit2 className="w-5 h-5" />
@@ -105,7 +113,11 @@ const CardItem = ({ card, index }) => {
               onClick={handleDelete}
               className="text-rose-900 hover:bg-rose-900 hover:text-white duration-500 hover:rounded-full p-2"
             >
-              <Trash className="w-5 h-5" />
+              {isLoading ? (
+                <Loader className="animate-spin w-5 h-5" />
+              ) : (
+                <Trash className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>
