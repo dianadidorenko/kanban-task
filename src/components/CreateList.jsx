@@ -16,7 +16,7 @@ const CreateList = () => {
 
   const { result, fieldErrors } = useAction(createList, {
     onSuccess: (data) => {
-      toast.success(`${data.title} created`);
+      toast.success(`${data.title} создан`);
       setIsEditAble(false);
       router.refresh();
     },
@@ -45,6 +45,7 @@ const CreateList = () => {
       inputRef.current?.focus();
     });
   };
+
   if (isEditAble) {
     return (
       <li className="shrink-0 h-full w-[272px] select-none">

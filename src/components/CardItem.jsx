@@ -6,13 +6,16 @@ import { useAction } from "@/hooks/useAction";
 import { deleteCard, updateCardDetails } from "@/services";
 import { toast } from "sonner";
 import { Edit2, Loader, Trash } from "lucide-react";
+// 1. ИМПОРТИРУЕМ useRouter
+import { useRouter } from "next/navigation";
 
 const CardItem = ({ card, index }) => {
+  const router = useRouter(); // 2. ИНИЦИАЛИЗИРУЕМ ХУК
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState(card.title);
   const [date, setDate] = useState(
-    card.date ? new Date(card.date).toISOString().split("T")[0] : ""
+    card.date ? new Date(card.date).toISOString().split("T")[0] : "",
   );
   const [formattedDate, setFormattedDate] = useState("");
 
@@ -20,7 +23,7 @@ const CardItem = ({ card, index }) => {
     if (card.date) {
       const options = { year: "numeric", month: "short", day: "2-digit" };
       setFormattedDate(
-        new Intl.DateTimeFormat("ru-RU", options).format(new Date(card.date))
+        new Intl.DateTimeFormat("ru-RU", options).format(new Date(card.date)),
       );
     }
   }, [card.date]);
@@ -29,6 +32,7 @@ const CardItem = ({ card, index }) => {
     onSuccess: () => {
       toast.success(`Card deleted`);
       setIsLoading(false);
+      router.refresh(); // 3. ОБНОВЛЯЕМ ДАННЫЕ НА СТРАНИЦЕ
     },
     onError: (error) => {
       toast.error(error);
@@ -41,6 +45,7 @@ const CardItem = ({ card, index }) => {
       toast.success(`Card updated`);
       setIsEditing(false);
       setIsLoading(false);
+      router.refresh(); // 4. ОБНОВЛЯЕМ ДАННЫЕ НА СТРАНИЦЕ
     },
     onError: (error) => {
       toast.error(error);
@@ -58,6 +63,7 @@ const CardItem = ({ card, index }) => {
   };
 
   const handleUpdate = () => {
+    setIsLoading(true); // Добавим лоадер на время сохранения изменений
     updateResult({ id: card.id, title, date });
   };
 
@@ -76,15 +82,18 @@ const CardItem = ({ card, index }) => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Title"
-                className="border p-1 rounded-md w-full h-full"
+                className="border p-1 rounded-md w-full h-full text-sm outline-none"
               />
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="border p-1 rounded-md"
+                className="border p-1 rounded-md text-sm"
               />
-              <button onClick={handleUpdate} className="text-green-600">
+              <button
+                onClick={handleUpdate}
+                className="text-green-600 font-medium text-sm self-end"
+              >
                 Сохранить
               </button>
             </div>
@@ -111,6 +120,7 @@ const CardItem = ({ card, index }) => {
             )}
             <button
               onClick={handleDelete}
+              disabled={isLoading}
               className="text-rose-900 hover:bg-rose-900 hover:text-white duration-500 hover:rounded-full p-2"
             >
               {isLoading ? (

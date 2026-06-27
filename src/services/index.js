@@ -5,183 +5,140 @@ import { revalidatePath } from "next/cache";
 
 export const createList = async (data) => {
   const { title } = data;
-  let list;
-
   try {
     const lastList = await prisma.list.findFirst({
       orderBy: { order: "desc" },
       select: { order: true },
     });
-
-    const newOrder = lastList ? lastList?.order + 1 : 1;
-
-    list = await prisma.list.create({
-      data: {
-        title,
-        order: newOrder,
-      },
+    const newOrder = lastList ? lastList.order + 1 : 1;
+    const list = await prisma.list.create({
+      data: { title, order: newOrder },
     });
+    revalidatePath("/");
+    return { data: list };
   } catch (error) {
-    return {
-      error: "list not created",
-    };
+    return { error: "list not created" };
   }
-
-  revalidatePath("/");
-  return { data: list };
 };
 
-// update list
+// Замена транзакции на Promise.all для MongoDB M0 (Shared Cluster)
 export const updateListOrder = async (data) => {
-  let lists;
-
   try {
-    lists = await prisma.$transaction(
-      data?.items?.map((list) =>
-        prisma.list.update({
-          where: {
-            id: list.id,
-          },
-          data: {
-            order: list.order,
-          },
-        })
-      )
+    const updatePromises = data?.items?.map((list) =>
+      prisma.list.update({
+        where: { id: list.id },
+        data: { order: list.order },
+      }),
     );
+    const lists = await Promise.all(updatePromises);
+    revalidatePath("/");
+    return { data: lists };
   } catch (error) {
-    return {
-      error: "failed to update",
-    };
+    return { error: "failed to update" };
   }
-
-  revalidatePath("/");
-  return {
-    data: lists,
-  };
 };
 
-// update list
 export const updateList = async (data) => {
   const { title, id } = data;
-  let list;
-
   try {
-    list = await prisma.list.update({
-      where: {
-        id,
-      },
-      data: {
-        title,
-      },
+    const list = await prisma.list.update({
+      where: { id },
+      data: { title },
     });
+    revalidatePath("/");
+    return { data: list };
   } catch (error) {
-    return {
-      error: "failed to update",
-    };
+    return { error: "failed to update" };
   }
-
-  revalidatePath("/");
-  return {
-    data: list,
-  };
 };
 
-// copy list
 export const copyList = async (data) => {
   const { id } = data;
-  let list;
-
   try {
     const listToCopy = await prisma.list.findUnique({
-      where: {
-        id,
-      },
+      where: { id },
       include: { cards: true },
     });
-
-    if (!listToCopy) {
-      return { error: "list not found" };
-    }
+    if (!listToCopy) return { error: "list not found" };
 
     const lastList = await prisma.list.findFirst({
       orderBy: { order: "desc" },
       select: { order: true },
     });
-
     const newOrder = lastList ? lastList.order + 1 : 1;
 
-    list = await prisma.list.create({
+    const list = await prisma.list.create({
       data: {
         title: `${listToCopy.title} - copy`,
         order: newOrder,
-        cards: listToCopy?.length
+        cards: listToCopy.cards?.length
           ? {
-              createMany: {
-                data: listToCopy.cards?.map((card) => ({
-                  title: card?.title,
-                  desc: card?.desc,
-                  order: card?.order,
-                })),
-              },
+              create: listToCopy.cards.map((card) => ({
+                title: card.title,
+                desc: card.desc,
+                order: card.order,
+              })),
             }
           : {},
       },
       include: { cards: true },
     });
+    revalidatePath("/");
+    return { data: list };
   } catch (error) {
-    return {
-      error: "failed to copy",
-    };
+    return { error: "failed to copy" };
   }
-  revalidatePath("/");
-  return { data: list };
 };
 
-// delete list
 export const deleteList = async (data) => {
   const { id } = data;
-  let list;
   try {
-    list = await prisma.list.delete({
-      where: { id },
-    });
+    const list = await prisma.list.delete({ where: { id } });
+    revalidatePath("/");
+    return { data: list };
   } catch (error) {
-    return {
-      error: "failed to delete",
-    };
+    return { error: "failed to delete" };
   }
-
-  revalidatePath("/");
-  return { data: list };
 };
 
-// add card
 export const createCard = async (data) => {
   const { title, listId, date } = data;
 
-  let card;
+  // Проверка на случай путаницы при импорте инстанса Prisma
+  const db = typeof prisma !== "undefined" ? prisma : null;
+
+  if (!db) {
+    return {
+      error: "Критическая ошибка: База данных Prisma не инициализирована.",
+    };
+  }
 
   try {
-    const list = await prisma.list.findUnique({
-      where: { id: listId },
-    });
-    console.log(list, "list");
-    if (!list) {
+    // Валидация ID для MongoDB (длина строки должна быть ровно 24 символа)
+    if (!listId || listId.length !== 24) {
+      console.error("Передан некорректный ID списка:", listId);
       return {
-        error: "list not found",
+        error: "Невалидный ID колонки. Обновите структуру базы данных.",
       };
     }
 
-    const listCard = await prisma.card.findFirst({
+    const parentList = await db.list.findUnique({
+      where: { id: listId },
+    });
+
+    if (!parentList) {
+      return { error: "Колонка не найдена в базе данных." };
+    }
+
+    const lastCard = await db.card.findFirst({
       where: { listId },
       orderBy: { order: "desc" },
       select: { order: true },
     });
-    console.log(listCard, "listCard");
 
-    const newOrder = listCard ? listCard.order + 1 : 1;
+    const newOrder = lastCard ? lastCard.order + 1 : 1;
 
-    card = await prisma.card.create({
+    const card = await db.card.create({
       data: {
         title,
         listId,
@@ -189,48 +146,41 @@ export const createCard = async (data) => {
         order: newOrder,
       },
     });
-  } catch (error) {
-    return { error: "card not created" };
-  }
 
-  revalidatePath("/");
-  return { data: card };
+    console.log("Карточка успешно сохранена в MongoDB:", card);
+    revalidatePath("/");
+    return { data: card };
+  } catch (error) {
+    console.error("Ошибка выполнения createCard на бэкенде:", error);
+    return { error: "Не удалось создать карточку в базе данных." };
+  }
 };
 
-// update card ordered
+// Замена транзакции на Promise.all для изменения порядка карточек
 export const updateCard = async (data) => {
   const { items } = data;
-
-  let updatedCards;
-
   try {
-    updatedCards = await prisma.$transaction(
-      items.map((card) =>
-        prisma.card.update({
-          where: {
-            id: card.id,
-          },
-          data: {
-            order: card.order,
-            listId: card.listId,
-          },
-        })
-      )
+    const updatePromises = items.map((card) =>
+      prisma.card.update({
+        where: { id: card.id },
+        data: {
+          order: card.order,
+          listId: card.listId,
+        },
+      }),
     );
+    const updatedCards = await Promise.all(updatePromises);
+    revalidatePath("/");
+    return { data: updatedCards };
   } catch (error) {
     return { error: "failed to order" };
   }
-  revalidatePath("/");
-  return { data: updatedCards };
 };
 
-// update card
 export const updateCardDetails = async (data) => {
   const { id, title, desc, date } = data;
-  let card;
-
   try {
-    card = await prisma.card.update({
+    const card = await prisma.card.update({
       where: { id },
       data: {
         title,
@@ -238,30 +188,20 @@ export const updateCardDetails = async (data) => {
         date: date ? new Date(date) : null,
       },
     });
+    revalidatePath("/");
+    return { data: card };
   } catch (error) {
-    return {
-      error: "failed to update card",
-    };
+    return { error: "failed to update card" };
   }
-
-  revalidatePath("/");
-  return { data: card };
 };
 
-// delete card
 export const deleteCard = async (data) => {
   const { id } = data;
-  let card;
   try {
-    card = await prisma.card.delete({
-      where: { id },
-    });
+    const card = await prisma.card.delete({ where: { id } });
+    revalidatePath("/");
+    return { data: card };
   } catch (error) {
-    return {
-      error: "failed to delete card",
-    };
+    return { error: "failed to delete card" };
   }
-
-  revalidatePath("/");
-  return { data: card };
 };

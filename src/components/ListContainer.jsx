@@ -55,7 +55,7 @@ const ListContainer = ({ lists }) => {
 
     if (type == "list") {
       const items = reorder(listData, source.index, destination.index).map(
-        (item, index) => ({ ...item, order: index })
+        (item, index) => ({ ...item, order: index }),
       );
       setListData(items);
       result({ items });
@@ -65,11 +65,11 @@ const ListContainer = ({ lists }) => {
       let newOrderedData = [...listData];
 
       const sourceList = newOrderedData.find(
-        (list) => list.id == source.droppableId
+        (list) => list.id == source.droppableId,
       );
 
       const destinationList = newOrderedData.find(
-        (list) => list.id == destination.droppableId
+        (list) => list.id == destination.droppableId,
       );
 
       if (!sourceList || !destinationList) return;
@@ -80,7 +80,7 @@ const ListContainer = ({ lists }) => {
         const reOrderedCards = reorder(
           sourceList.cards,
           source.index,
-          destination.index
+          destination.index,
         );
         reOrderedCards.forEach((card, idx) => {
           card.order = idx;
@@ -117,11 +117,7 @@ const ListContainer = ({ lists }) => {
             className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"
           >
             {listData.map((list, index) => (
-              <ListItem
-                key={list.id}
-                index={index}
-                list={list}
-              />
+              <ListItem key={list.id} index={index} list={list} />
             ))}
             {provided.placeholder}
             {/* <CreateList /> */}
