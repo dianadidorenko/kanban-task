@@ -1,8 +1,7 @@
 import ListContainer from "@/components/ListContainer";
 import prisma from "@/lib/db";
-import dns from "dns";
 
-dns.setDefaultResultOrder("ipv4first");
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const lists = await prisma.list.findMany({
